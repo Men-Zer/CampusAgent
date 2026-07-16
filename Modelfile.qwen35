@@ -1,0 +1,4 @@
+FROM frob/qwen3.5-instruct:9b
+PARAMETER temperature 0.2
+PARAMETER num_ctx 32768
+PARAMETER num_predict 16384

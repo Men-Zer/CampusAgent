@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <script>
+      // P1-24: 提前应用主题，避免 FOUC（暗色闪烁）
+      (function() {
+        var t = localStorage.getItem('it-desk-theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+      })();
+    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HarmonyCampus</title>
+  <link rel="stylesheet" href="css/style.css?v=6">
+</head>
+<body>
+  <div class="app" id="app">
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar" role="navigation" aria-label="对话列表">
+      <div class="sidebar-header">
+        <div class="sidebar-brand">
+          <div class="sidebar-logo">HC</div>
+          <h1 class="sidebar-title">HarmonyCampus</h1>
+        </div>
+        <button class="btn-new-chat" id="btnNewChat" aria-label="新建对话">
+          <span>+</span>
+          <span>新建对话</span>
+        </button>
+      </div>
+
+      <div class="sidebar-section-label">最近对话</div>
+      <div class="conversation-list" id="conversationList" role="listbox" aria-label="历史对话">
+        <!-- Populated by JS -->
+      </div>
+
+      <div class="sidebar-footer">
+        <span style="font-size:12px;color:var(--text-tertiary);">
+          <span id="connectionStatus" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--text-tertiary);margin-right:6px;vertical-align:middle;"></span>
+          <span id="connectionLabel">未连接</span>
+        </span>
+        <div class="font-size-control">
+          <button class="font-size-btn" data-size="small" title="小字号">A−</button>
+          <button class="font-size-btn active" data-size="medium" title="中字号">A</button>
+          <button class="font-size-btn" data-size="large" title="大字号">A+</button>
+        </div>
+        <button class="theme-toggle" id="btnTheme" aria-label="切换主题" title="切换暗色/亮色主题">
+          <span class="theme-icon-dark">☀️</span>
+          <span class="theme-icon-light" style="display:none;">🌙</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- 移动端侧栏 overlay -->
+    <div class="sidebar-mobile-overlay" id="sidebarMobileOverlay" style="display:none">
+      <div class="sidebar-mobile-content">
+        <div class="sidebar-mobile-header">
+          <h3>对话列表</h3>
+          <button class="btn-close-mobile">&times;</button>
+        </div>
+        <div class="sidebar-mobile-list" id="conversationMobileList"></div>
+        <button class="btn-new-chat-mobile" id="btnNewChatMobile">+ 新建对话</button>
+      </div>
+    </div>
+
+    <!-- ============ DIVIDER ============ -->
+    <div class="divider-v" aria-hidden="true"></div>
+
+    <!-- ============ MAIN CHAT AREA ============ -->
+    <main class="main-area">
+      <div class="chat-header">
+        <div class="chat-header-left">
+          <span class="chat-title" id="chatTitle">HarmonyCampus</span>
+          <span class="model-badge" id="modelBadge">智能体 · 已联网</span>
+        </div>
+        <div class="chat-header-right">
+          <button class="btn-icon" id="btnTogglePanel" aria-label="切换来源面板" title="来源面板">☰</button>
+        </div>
+      </div>
+
+      <!-- Message Thread -->
+      <div class="thread" id="thread" role="log" aria-label="对话内容" aria-live="polite">
+        <!-- ===== Empty State ===== -->
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">💬</div>
+          <h2 class="empty-title">HarmonyCampus</h2>
+          <p class="empty-desc">校园 AI 智能助手。问选课、查 WiFi、管学习、看天气，我都帮你。</p>
+          <div class="quick-prompts" id="quickPrompts">
+            <button class="quick-prompt" data-prompt="怎么选选修课？">📚 选课攻略</button>
+            <button class="quick-prompt" data-prompt="校园网连不上怎么办？">📶 校园网故障</button>
+            <button class="quick-prompt" data-prompt="有哪些社团可以参加？">🎯 社团推荐</button>
+            <button class="quick-prompt" data-prompt="考研怎么准备？">🎓 考研指南</button>
+            <button class="quick-prompt" data-prompt="图书馆怎么借书？">📖 图书馆指南</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Composer -->
+      <div class="composer">
+        <div class="composer-inner">
+          <div class="composer-toolbar">
+            <button class="stream-toggle" id="btnStreamToggle" role="switch" aria-checked="true" aria-label="流式输出" title="流式：逐字显示回答；关闭：等全部生成后一次显示">
+              <span class="stream-toggle-text">流式输出</span>
+              <span class="stream-toggle-track"><span class="stream-toggle-knob"></span></span>
+            </button>
+          </div>
+          <textarea
+            class="composer-input"
+            id="composerInput"
+            placeholder="问我任何校园问题，或拖拽文件上传..."
+            rows="1"
+            aria-label="输入消息"
+          ></textarea>
+          <div class="composer-actions">
+            <input type="file" id="fileInput" style="display:none" multiple accept=".txt,.md,.pdf,.docx,.pptx,.xlsx,.csv,.json,.log,.py,.js,.html,.css"/>
+            <button class="btn-upload" id="btnUpload" aria-label="上传文件" title="上传文件到我的知识库">📎</button>
+            <span class="composer-shortcut" id="composerHint">Enter 发送，Shift+Enter 换行</span>
+            <button class="btn-send" id="btnSend" aria-label="发送消息" disabled>
+              ↑
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ============ DIVIDER ============ -->
+    <div class="divider-v" aria-hidden="true"></div>
+
+    <!-- ============ CONTEXT PANEL ============ -->
+    <aside class="panel" id="panel" aria-label="后端上下文" role="complementary">
+      <div class="panel-header">
+        <span class="panel-title">提示词上下文</span>
+        <button class="btn-icon" id="btnClosePanel" aria-label="关闭面板">✕</button>
+      </div>
+      <div class="panel-content" id="panelContent">
+        <div class="panel-empty" id="panelEmpty">
+          发送消息后，这里会展示<br>发送给 LLM 的完整提示词
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- Mermaid 渲染库（本地离线，3.5MB） -->
+  <script src="js/lib/mermaid.min.js" defer></script>
+  <script>
+    // 初始化 mermaid：startOnLoad=false，由 app.js 在渲染完成后手动调 mermaid.run()
+    // 流式渲染时代码不完整，自动启动会报错，所以改成手动触发
+    if (window.mermaid) {
+      // 暗色 / 亮色双主题配置（根据当前主题切换）
+      // handDrawn 手绘风格：节点有不规则边缘，更亲和自然
+      // 丰富配色：紫/黄/绿/粉/蓝/橙多色系，节点自动分色
+      window.__mermaidThemes = {
+        dark: {
+          theme: 'base',
+          look: 'handDrawn',
+          securityLevel: 'strict',
+          flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis', padding: 20 },
+          sequence: { useMaxWidth: true, actorMargin: 50 },
+          mindmap: { padding: 20 },
+          themeVariables: {
+            // 暗色背景适配
+            background: '#0A0A0B',
+            primaryColor: '#1E1B4B',       // 主节点底色 - 深紫
+            primaryTextColor: '#E5E5E6',   // 主节点文字 - 浅
+            primaryBorderColor: '#A78BFA', // 主节点边框 - 亮紫
+            secondaryColor: '#422006',     // 次节点 - 深棕
+            tertiaryColor: '#064E3B',      // 三节点 - 深绿
+            // 线条
+            lineColor: '#9D9DA5',
+            // 字体
+            fontFamily: '"JetBrains Mono", "Microsoft YaHei", monospace',
+            fontSize: '24px',
+            // 各类图节点颜色（自动循环分配）
+            nodeBkg: '#1E1B4B',
+            nodeBorder: '#A78BFA',
+            clusterBkg: '#141417',
+            clusterBorder: '#374151',
+            // 时序图
+            actorBkg: '#1E1B4B',
+            actorBorder: '#A78BFA',
+            actorTextColor: '#E5E5E6',
+            signalColor: '#9D9DA5',
+            signalTextColor: '#E5E5E6',
+            labelBoxBkgColor: '#1E1B4B',
+            labelTextColor: '#E5E5E6',
+            // 饼图多色（8 色循环）
+            pie1: '#A78BFA', pie2: '#FBBF24', pie3: '#34D399', pie4: '#F87171',
+            pie5: '#60A5FA', pie6: '#F472B6', pie7: '#A3E635', pie8: '#FB923C',
+            // 状态图
+            fillType0: '#1E1B4B', fillType1: '#422006', fillType2: '#064E3B',
+            fillType3: '#831843', fillType4: '#1E3A8A', fillType5: '#78350F',
+            // 甘特图
+            sectionBkgColor: '#1E1B4B',
+            altSectionBkgColor: '#141417',
+            sectionBkgColor2: '#064E3B',
+            taskBkgColor: '#A78BFA',
+            taskTextColor: '#E5E5E6',
+            taskTextLightColor: '#E5E5E6',
+            taskTextOutsideColor: '#E5E5E6',
+            taskTextClickableColor: '#A78BFA',
+            activeTaskBorderColor: '#FBBF24',
+            doneTaskBkgColor: '#374151',
+            doneTaskBorderColor: '#6B7280',
+            critBorderColor: '#F87171',
+            critBkgColor: '#7F1D1D',
+            gridColor: '#374151',
+            todayLineColor: '#F87171'
+          }
+        },
+        light: {
+          theme: 'base',
+          look: 'handDrawn',
+          securityLevel: 'strict',
+          flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis', padding: 20 },
+          sequence: { useMaxWidth: true, actorMargin: 50 },
+          mindmap: { padding: 20 },
+          themeVariables: {
+            background: '#FFFFFF',
+            primaryColor: '#EDE9FE',       // 主节点底色 - 浅紫
+            primaryTextColor: '#1E1B4B',   // 主节点文字 - 深紫
+            primaryBorderColor: '#7C3AED', // 主节点边框 - 紫
+            secondaryColor: '#FEF3C7',     // 次节点 - 浅黄
+            tertiaryColor: '#D1FAE5',      // 三节点 - 浅绿
+            lineColor: '#6B7280',
+            fontFamily: '"JetBrains Mono", "Microsoft YaHei", monospace',
+            fontSize: '24px',
+            nodeBkg: '#EDE9FE',
+            nodeBorder: '#7C3AED',
+            clusterBkg: '#F9FAFB',
+            clusterBorder: '#E5E7EB',
+            actorBkg: '#EDE9FE',
+            actorBorder: '#7C3AED',
+            actorTextColor: '#1E1B4B',
+            signalColor: '#374151',
+            signalTextColor: '#1E1B4B',
+            labelBoxBkgColor: '#EDE9FE',
+            labelTextColor: '#1E1B4B',
+            pie1: '#A78BFA', pie2: '#FBBF24', pie3: '#34D399', pie4: '#F87171',
+            pie5: '#60A5FA', pie6: '#F472B6', pie7: '#A3E635', pie8: '#FB923C',
+            fillType0: '#EDE9FE', fillType1: '#FEF3C7', fillType2: '#D1FAE5',
+            fillType3: '#FCE7F3', fillType4: '#DBEAFE', fillType5: '#FED7AA',
+            sectionBkgColor: '#EDE9FE',
+            altSectionBkgColor: '#F9FAFB',
+            sectionBkgColor2: '#D1FAE5',
+            taskBkgColor: '#A78BFA',
+            taskTextColor: '#1E1B4B',
+            taskTextLightColor: '#1E1B4B',
+            taskTextOutsideColor: '#1E1B4B',
+            taskTextClickableColor: '#7C3AED',
+            activeTaskBorderColor: '#F59E0B',
+            doneTaskBkgColor: '#E5E7EB',
+            doneTaskBorderColor: '#9CA3AF',
+            critBorderColor: '#EF4444',
+            critBkgColor: '#FEE2E2',
+            gridColor: '#E5E7EB',
+            todayLineColor: '#EF4444'
+          }
+        }
+      };
+      // 根据当前主题初始化
+      const currentTheme = (document.documentElement.getAttribute('data-theme') || 'dark');
+      mermaid.initialize(Object.assign({ startOnLoad: false, securityLevel: 'strict' },
+                                      window.__mermaidThemes[currentTheme] || window.__mermaidThemes.dark));
+      // 暴露给 app.js：切换主题时重新初始化 + 重新渲染
+      window.reinitMermaid = function(theme) {
+        const t = theme || document.documentElement.getAttribute('data-theme') || 'dark';
+        mermaid.initialize(Object.assign({ startOnLoad: false, securityLevel: 'strict' },
+                                        window.__mermaidThemes[t] || window.__mermaidThemes.dark));
+      };
+    }
+  </script>
+  <!-- Application Logic -->
+  <script src="js/app.js?v=13"></script>
+</body>
+</html>
