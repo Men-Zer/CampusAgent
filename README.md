@@ -10,8 +10,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/hyx1249207016-netizen/AgenticRAG/actions/workflows/ci.yml">
-    <img src="https://github.com/hyx1249207016-netizen/AgenticRAG/actions/workflows/ci.yml/badge.svg" alt="CI">
+  <a href="https://github.com/Men-Zer/CampusAgent/actions/workflows/ci.yml">
+    <img src="https://github.com/Men-Zer/CampusAgent/actions/workflows/ci.yml/badge.svg" alt="CI">
   </a>
   <a href="./LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License">
@@ -58,7 +58,7 @@ Designed as a general-purpose knowledge Q&A agent, it ships with a campus-scenar
 ### 1. Clone and Setup
 
 ```bash
-git clone https://github.com/hyx1249207016-netizen/AgenticRAG.git
+git clone https://github.com/Men-Zer/CampusAgent.git
 cd AgenticRAG
 
 python -m venv .venv
