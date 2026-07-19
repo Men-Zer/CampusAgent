@@ -1,6 +1,6 @@
 ---
 name: 功能建议
-about: 为 CampusAgent 提出建议
+about: 为 AgenticRAG 提出建议
 title: "[Feature] 简短的描述"
 labels: enhancement
 assignees: ''

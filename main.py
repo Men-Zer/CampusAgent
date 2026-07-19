@@ -31,7 +31,7 @@ async def lifespan(app: FastAPI):
     """
     # === startup ===
     init_logging()
-    logger.info("HarmonyCampus 启动中...")
+    logger.info("AgenticRAG 启动中...")
 
     try:
         logger.info("正在初始化 Agent 服务...")
@@ -42,7 +42,7 @@ async def lifespan(app: FastAPI):
         routes_module.memory_service = MemoryService()
         logger.info("记忆服务初始化完成")
 
-        logger.info("HarmonyCampus 启动完成")
+        logger.info("AgenticRAG 启动完成")
     except Exception as e:
         logger.error("启动失败: %s", e, exc_info=True)
         sys.exit(1)
@@ -50,7 +50,7 @@ async def lifespan(app: FastAPI):
     yield  # 应用运行中
 
     # === shutdown ===
-    logger.info("HarmonyCampus 正在关闭...")
+    logger.info("AgenticRAG 正在关闭...")
     try:
         from app.api.routes import _executor
         _executor.shutdown(wait=False, cancel_futures=True)
@@ -61,7 +61,7 @@ async def lifespan(app: FastAPI):
 
 # 创建 FastAPI 应用实例
 app = FastAPI(
-    title="HarmonyCampus",
+    title="AgenticRAG",
     description="校园 AI 智能助手（Agent + RAG）",
     lifespan=lifespan,
 )
@@ -77,7 +77,7 @@ app.include_router(router)
 def health():
     """健康检查接口"""
     return {
-        "message": "HarmonyCampus 已启动",
+        "message": "AgenticRAG 已启动",
         "endpoints": {
             "非流式问答": "POST /chat",
             "流式问答": "POST /chat/stream",

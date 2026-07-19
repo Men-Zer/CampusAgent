@@ -25,7 +25,7 @@ assignees: ''
 - 操作系统: [e.g. Windows 11, macOS 14]
 - Python 版本: [e.g. 3.11]
 - Ollama 版本: [e.g. 0.3.0]
-- 使用的模型: [e.g. qwen35-campus]
+- 使用的模型: [e.g. agenticrag-model]
 
 **其他上下文**
 任何其他相关信息。

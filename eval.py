@@ -1,5 +1,5 @@
 """
-CampusAgent 自动评测脚本
+AgenticRAG 自动评测脚本
 用法：python eval.py
 输出：准确率 / 召回率 / 平均响应时间 / 逐条详情
 """
@@ -150,7 +150,7 @@ def check_answer(answer: str, keywords: list[str]) -> bool:
 
 def main():
     print("=" * 60)
-    print("CampusAgent 自动评测")
+    print("AgenticRAG 自动评测")
     print(f"评测用例数: {len(TEST_CASES)}")
     print(f"API 地址: {API_URL}")
     print("=" * 60)

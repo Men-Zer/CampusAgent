@@ -6,13 +6,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 # ========== Ollama 模型配置 ==========
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "bge-m3")        # 向量模型：把文字转成数字指纹
-CHAT_MODEL = os.getenv("CHAT_MODEL", "qwen35-campus")  # 对话模型（num_ctx=32k，修复 400 错误）
+CHAT_MODEL = os.getenv("CHAT_MODEL", "agenticrag-model")  # 对话模型（num_ctx=32k，修复 400 错误）
 CHAT_TEMPERATURE = 0.1                # 温度：越低越守规矩（0=死板，1=天马行空）
 
 # ========== ChromaDB 向量库 ==========
 CHROMA_GENERAL_DIR = os.path.join(BASE_DIR, "chroma_db", "general")  # 通用知识库（静态 .md）
 CHROMA_USER_BASE_DIR = os.path.join(BASE_DIR, "chroma_db")           # 用户专属库父目录（下面 user_{uuid}/）
-COLLECTION_NAME = "campus_knowledge"
+COLLECTION_NAME = "agenticrag_knowledge"
 DATA_DIR = os.path.join(BASE_DIR, "data")  # 知识库 .md 文档目录
 
 # ========== 文档切分参数 ==========

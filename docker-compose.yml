@@ -3,7 +3,7 @@ version: "3.9"
 services:
   ollama:
     image: ollama/ollama:latest
-    container_name: campusagent-ollama
+    container_name: agenticrag-ollama
     volumes:
       - ollama_data:/root/.ollama
     ports:
@@ -20,7 +20,7 @@ services:
 
   app:
     build: .
-    container_name: campusagent-app
+    container_name: agenticrag-app
     depends_on:
       - ollama
     ports:
@@ -28,7 +28,7 @@ services:
     environment:
       - OLLAMA_BASE_URL=http://ollama:11434
       - EMBEDDING_MODEL=bge-m3
-      - CHAT_MODEL=qwen35-campus
+      - CHAT_MODEL=agenticrag-model
       - HOST=0.0.0.0
       - PORT=8000
       - TAVILY_API_KEY=${TAVILY_API_KEY:-}

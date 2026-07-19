@@ -1,5 +1,5 @@
 /* ============================================================
-   HarmonyCampus — Application Logic
+   AgenticRAG — Application Logic
    Zero-dependency | SSE streaming | Theme toggle | Tool calls
    ============================================================ */
 

@@ -56,7 +56,7 @@ def init_logging(level: int = logging.DEBUG, keep_days: int = 30) -> None:
 
     # 文件 handler：按天轮转，保留 keep_days 天
     file_handler = TimedRotatingFileHandler(
-        filename=os.path.join(LOG_DIR, "harmonycampus.log"),
+        filename=os.path.join(LOG_DIR, "agenticrag.log"),
         when="midnight",
         interval=1,
         backupCount=keep_days,
@@ -92,7 +92,7 @@ def init_logging(level: int = logging.DEBUG, keep_days: int = 30) -> None:
 
     logging.getLogger("app").info(
         "日志系统初始化完成 | 文件: %s",
-        os.path.join(LOG_DIR, "harmonycampus.log"),
+        os.path.join(LOG_DIR, "agenticrag.log"),
     )
 
 

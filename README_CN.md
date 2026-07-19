@@ -1,130 +1,171 @@
+
 <div align="center">
+  <h1>AgenticRAG 🧠</h1>
+  <p><strong>本地优先的 RAG Agent — 双路检索 + ReAct 推理 + 分级记忆</strong></p>
+</div>
 
-# CampusAgent 🎓
+<p align="center">
+  <a href="./README.md">English</a> |
+  <a href="./README_CN.md">简体中文</a>
+</p>
 
-### 校园 AI 智能助手 — 问选课、查WiFi、找攻略，一个 Agent 搞定
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-00a393.svg)](https://fastapi.tiangolo.com/)
-[![LangGraph](https://img.shields.io/badge/LangGraph-%E2%9C%94-purple.svg)](https://langchain-ai.github.io/langgraph/)
-[![RAG](https://img.shields.io/badge/RAG-%E5%8F%8C%E8%B7%AF%E5%8F%AC%E5%9B%9E%2B%E9%87%8D%E6%8E%92-green.svg)](#-%E6%8A%80%E6%9C%AF%E6%9E%B6%E6%9E%84)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+<p align="center">
+  <a href="https://github.com/hyx1249207016-netizen/AgenticRAG/actions/workflows/ci.yml">
+    <img src="https://github.com/hyx1249207016-netizen/AgenticRAG/actions/workflows/ci.yml/badge.svg" alt="CI">
+  </a>
+  <a href="./LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License">
+  </a>
+  <a href="https://python.org">
+    <img src="https://img.shields.io/badge/Python-3.10+-3776AB?logo=python" alt="Python">
+  </a>
+  <a href="https://ollama.com">
+    <img src="https://img.shields.io/badge/Ollama-Qwen3.5-5B5?logo=ollama" alt="Ollama">
+  </a>
+</p>
 
 ---
 
-</div>
+**AgenticRAG** 是一个本地优先、生产级可用的 AI Agent，融合了**双路检索**（语义向量 + BM25）、**ReAct 推理**和**分级记忆**（短期记忆、长期记忆、用户画像）。完全基于 Ollama 本地运行——无需云 API，数据不离开本机，零额外费用。
 
-## 📖 简介
+它不仅是一个校园知识助手，更是一个**通用知识库问答框架**。你可以接入任何知识库——企业文档、个人笔记、科研论文、产品手册——几分钟内得到一个智能 Agent。
 
-CampusAgent 是一个面向校园场景的 AI 问答助手。它利用 RAG（检索增强生成）+ ReAct Agent 技术，帮助大学生快速获取校园相关信息。
+---
 
-- 📚 **选课攻略** — 怎么选选修课？公共课怎么安排？
-- 📶 **校园网络** — WiFi 连不上？校园网怎么充值？
-- 🎯 **社团活动** — 有哪些社团？怎么加入？
-- 🎓 **考研/留学** — 考研时间线？留学怎么准备？
-- 📋 **证件办理** — 学生证丢失怎么办？在校证明怎么开？
+## 功能特性
 
-## ✨ 核心功能
+| 特性 | 说明 |
+|---|---|
+| **ReAct Agent** | 基于 LangGraph 的工具调用循环，内置 4 个工具：知识库搜索、网页搜索、网页抓取、时钟 |
+| **双路检索** | 语义向量检索（ChromaDB + BGE 嵌入）+ BM25 关键词检索，经 bge-reranker 重排序融合 |
+| **分级记忆** | 短期记忆（10 轮对话）+ ChromaDB 长期摘要 + 用户画像——永不丢失上下文 |
+| **SSRF 防护** | 双重 IP 校验（Python + nslookup），防止服务端请求伪造攻击 |
+| **优雅降级** | 自动兜底：语义搜索 BM25 搜索 直接 LLM 回答，内置熔断和重试 |
+| **流式输出** | 基于 SSE 的实时流式响应，通过 FastAPI 提供 |
+| **模型无关** | 通过配置文件切换模型OllamaOpenAI 兼容接口或任意 LangChain 支持的 LLM |
+| **Docker 支持** | docker-compose 一键部署 |
+| **评估工具** | 内置 RAG 准确率评估脚本，支持持续迭代优化 |
 
-| 功能 | 说明 |
-|------|------|
-| 🔍 智能问答 | 自然语言提问，Agent 自动决策 |
-| 📖 RAG 知识库 | 50+ 校园攻略文档，双路召回 + 重排，Recall@5 89% |
-| 🌐 联网搜索 | 知识库不够时自动上网查，百度 + Tavily 双引擎 |
-| 💾 记忆系统 | 记住上下文，聊越多越懂你 |
-| 📎 文件上传 | 上传学习资料进知识库 |
-| 🎨 现代 UI | 暗色/亮色主题、流式输出、Mermaid 图表 |
+---
 
-## 🚀 快速开始
+## 快速开始
 
 ### 前置条件
 
+- [Ollama](https://ollama.com) 已安装并运行
 - Python 3.10+
-- [Ollama](https://ollama.ai/)（本地 LLM 运行环境）
-- 至少 8GB 显存（推荐 16GB）
 
-### 1. 安装 Ollama 模型
+### 1. 克隆并安装
 
 ```bash
-# 拉取嵌入模型
-ollama pull bge-m3
+git clone https://github.com/hyx1249207016-netizen/AgenticRAG.git
+cd AgenticRAG
 
-# 创建对话模型（基于 Qwen3.5）
-ollama create qwen35-campus -f Modelfile.qwen35
-```
-
-### 2. 克隆并安装
-
-```bash
-git clone https://github.com/Men-Zer/CampusAgent.git
-cd CampusAgent
-
-# 虚拟环境（推荐）
 python -m venv .venv
-# Windows: .venv\Scripts\activate
-# macOS/Linux: source .venv/bin/activate
-
+.venv\Scripts\activate  # Linux/macOS: source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. 配置并启动
+### 2. 下载模型
+
+```bash
+ollama pull qwen3.5:0.5b
+ollama pull bge-m3:latest
+```
+
+创建自定义模型配置：
+
+```bash
+ollama create agenticrag-model -f Modelfile.qwen35
+```
+
+### 3. 配置环境变量
 
 ```bash
 cp .env.example .env
-# 或 Windows: copy .env.example .env
+```
 
+### 4. 准备知识库
+
+将你的 Markdown 文档放入 `data/` 目录，或直接使用内置的示例数据。
+
+### 5. 启动
+
+```bash
 python main.py
 ```
 
-打开浏览器访问 [http://localhost:8000](http://localhost:8000)
+打开浏览器访问 [http://localhost:8000](http://localhost:8000) 开始对话。
 
-### 🐳 Docker 启动（推荐）
-
-```bash
-docker compose up -d
-# 访问 http://localhost:8000
-```
-
-## 🏗️ 技术架构
-
-```
-用户输入 → ReAct Agent (LangGraph)
-                ├── 知识库检索（双路召回 + bge-reranker 重排）
-                ├── 联网搜索（百度 → Tavily 降级）
-                ├── 网页抓取
-                └── 时钟工具
-                    ↓
-            LLM 生成回答（Qwen3.5 / Ollama）
-                    ↓
-            流式输出 SSE → 前端 UI
-```
-
-### 关键技术指标
-
-| 指标 | 数值 |
-|------|------|
-| 知识库 Recall@5 | 89%（纯向量 68% → 双路+重排 89%，+21pp） |
-| 搜索引擎覆盖率 | 99%+（百度 + Tavily 双引擎降级） |
-| API 响应 P50 | 5.2s |
-| 短期记忆 | 10 轮对话 |
-| 长程记忆 | ChromaDB 向量持久化 |
-
-## 🔒 安全特性
-
-- SSRF 防护：双重 IP 校验，拒绝内网访问
-- 路径穿越防护：用户文件路径严格校验
-- 文件上传：类型白名单 + 20MB 上限
-- Prompt 注入缓解：结构化指令隔离
-
-## 🤝 参与贡献
-
-欢迎任何形式的贡献！详见 [CONTRIBUTING.md](CONTRIBUTING.md)。
-
-## 📄 许可证
-
-本项目基于 [MIT License](LICENSE) 开源。
+> Docker 用户：运行 `docker compose up -d` 可一键容器化部署。
 
 ---
 
-**如果这个项目对你有帮助，欢迎给个 ⭐ ⭐ ⭐ ⭐ ⭐ — 你的支持是作者持续更新的动力！**
+## 配置说明
+
+`.env` 中的关键环境变量：
+
+| 变量 | 默认值 | 说明 |
+|---|---|---|
+| OLLAMA_BASE_URL | http://localhost:11434 | Ollama 服务地址 |
+| CHAT_MODEL | agenticrag-model | 对话用的 LLM |
+| EMBEDDING_MODEL | bge-m3:latest | 嵌入模型 |
+| MEMORY_PERSIST_DIR | ./data/memory_db | 长期记忆存储路径 |
+
+完整配置项见 [.env.example](.env.example)。
+
+---
+
+## 评估
+
+```bash
+python eval.py
+```
+
+运行 RAG 准确率评估，输出精确率和召回率指标。
+
+---
+
+## 项目结构
+
+```
+AgenticRAG/
+├── main.py                     # FastAPI 入口
+├── app/
+│   ├── api/routes.py           # 聊天和文件上传接口
+│   ├── core/config.py          # 环境配置
+│   ├── services/
+│   │   ├── memory_service.py   # 分级记忆系统
+│   │   ├── react_agent.py      # LangGraph ReAct Agent
+│   │   ├── reranker.py         # bge-reranker 重排序
+│   │   └── vector_store.py     # ChromaDB 管理
+│   └── tools/agent_tools.py    # 工具实现
+├── data/                       # 知识库文档
+├── static/                     # Web 前端
+├── tests/                      # 测试
+└── docker-compose.yml          # Docker 部署
+---
+
+## 安全
+
+- **SSRF 防护**：每个网络请求都经过双重 IP 校验Python urllib + 系统 nslookup在建立连接前拦截私有/内网 IP。
+- **输入校验**：文件上传做类型检查，API 输入通过 Pydantic schema 校验。
+- **无遥测**：零数据收集，完全本地运行。
+
+---
+
+## 参与贡献
+
+欢迎贡献代码！请阅读 [CONTRIBUTING.md](CONTRIBUTING.md) 了解详情。
+
+---
+
+## 开源协议
+
+[MIT](LICENSE) 2025 AgenticRAG
+
+---
+
+<p align="center">
+  <sub>基于 LangGraph、ChromaDB、FastAPI 和 Ollama 构建</sub>
+</p>
