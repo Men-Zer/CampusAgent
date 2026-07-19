@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from typing import List, Dict, Tuple
 from langchain_chroma import Chroma
+from langchain_core.documents import Document
 from langchain_ollama import OllamaEmbeddings
 from langchain_ollama import ChatOllama
 from app.core import config
