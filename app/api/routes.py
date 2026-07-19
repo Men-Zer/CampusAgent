@@ -220,7 +220,8 @@ async def chat_stream(item: ChatRequest):
 
                             logger.debug("[流式·工具完成] %s output_len=%d", name, len(output_str))
 
-                            yield f"data: [TOOL_END] {_json.dumps({"name": name, "output": output_str, "status": "done", "append": is_append}, ensure_ascii=False)}\n\n"
+                            tool_end_data = {"name": name, "output": output_str, "status": "done", "append": is_append}
+                            yield f"data: [TOOL_END] {_json.dumps(tool_end_data, ensure_ascii=False)}\n\n"
                             break
 
                 # --- Text streaming ---
@@ -242,7 +243,8 @@ async def chat_stream(item: ChatRequest):
                         if tc["name"] == name and tc["status"] == "running":
                             tc["status"] = "error"
                             logger.debug("[流式·工具错误] %s", name)
-                            yield f"data: [TOOL_END] {_json.dumps({"name": name, "status": "error"}, ensure_ascii=False)}\n\n"
+                            tool_end_data = {"name": name, "status": "error"}
+                            yield f"data: [TOOL_END] {_json.dumps(tool_end_data, ensure_ascii=False)}\n\n"
                             break
 
             # --- Emit sources ---
